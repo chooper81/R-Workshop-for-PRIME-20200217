@@ -1,0 +1,561 @@
+---
+title: "PRIME Meeting Tutorial"
+author: "Cameron Hooper"
+date: "February 14, 2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+EASY CHEATSHEET FOR LEARNING R COMMANDS
+GO TO HELP IN TOP LEFT CORNER OF SCREEN
+GO DOWN TO CHEATSHEETS
+CLICK ON THE DESIRED CHEATSHEET, R WILL DOWNLOAD A PDF FROM ONLINE, VERY INTRICATE AND DETAILED GUIDE
+
+If using a PC and want to use R markdown, you can quickly create this typing frames in Markdown by doing the following command
+ctrl+alt+i
+
+```{r}
+
+```
+
+
+# Basics of Programming Languages in R
+```{r}
+## Lets create a vector
+x = c(1,3,4,5,5,6,6,6,6,7,7)
+
+# Notice how the variable is stored in the upper right hand portion of the screen in an tab called Environment
+
+# Unlike programming languages such as MATLAB, R will not output the data when it is create, you must call the variable
+
+x
+
+###Now that our vector is defined we can start to do stuff with it.  Lets do some basic arithmetic operations. We can also do some basic summaries and displays with this vector
+
+x*2
+
+x^2
+
+mean(x)
+
+summary(x)
+
+hist(x)
+
+var(x)
+
+sd(x)
+
+```
+
+## Now, lets work with some real data. Please download the student.csv file from Titanium
+
+
+```{r}
+# To read any data frame, we must first put R in the correct working directory (pathing issues)
+# To get the working directory
+getwd()
+# To set working directory
+setwd("C:/Users/choop/Documents/Workshops/PRIME/R Workshop 20200217")
+# BECAREFUL! R likes its slashes /, not \. So double check before setting the work directory.
+# Setting a working directory means that R will be able to load files from this folder as well as save files to this folder, unless specified otherwise.
+
+# Let's load our first data frame.
+practice = read.csv("student.csv",h=T)
+
+practice
+
+###Now if we want to analyze each of the variables separately, we can do it multiple ways. Here are three different ways
+# 1) we can access them as variables within the data set using the "$" sign.
+practice$height
+
+# 2) we can use mathematical indexing if you know the position
+head(practice)
+colnames(practice)
+practice[,2]
+
+# 3) if we only have one dataset with each variable. Its helpful to create them as their own variables using "attach"
+attach(practice)
+
+height
+
+weight
+
+commute
+
+gender
+
+###Now lets have some fun with this dataset.  Lets see if there is a correlation between height and weight. Do you think there will be?  First lets plot and describe the association
+
+plot(height,weight)
+
+cor(height,weight)
+
+
+
+###What about between height and commute?###
+###Again, lets first plot and describe the association###
+
+plot(height,commute)
+
+cor(height,commute)
+
+###What if I want to make a histogram of the weight variable?
+
+# To find out what a function does, use the ? command, it will produce a pop-up in the bottom right portion of the screen. It will tell you what the functions inputs and outputs are as well as provide an example. This works when not connected to the internet as well
+?hist
+
+hist(height,breaks=8)
+
+###Hmmm...looks bimodal, perhaps we'd like to analyze males and females separately.  Heres how you could subset the variable height by gender
+
+height[gender=="M"]
+
+height[gender=="F"]
+
+###I could keep referencing them this way, or alternatively I could just make new variables male.h, female.h
+
+male.h = height[gender=="M"]
+female.h = height[gender=="F"]
+
+###Now lets make two histograms, one for males, one for females.###
+
+par(mfrow = c(2,1))
+hist(male.h,breaks=10,xlim=c(60,78))
+hist(female.h,breaks=8,xlim=c(60,78))
+
+```
+
+
+# Data Structures in R
+```{r}
+### This section focuses on data structures, specifically matrices as well as normal qq plots and FOR loops.####
+
+####Lets begin with creating a dataset in matrix form, we will call this matrix 'x' for simplicity 
+x = matrix(0,5,4)
+x
+
+#What if I don't want all zeroes in my matrix, there are a few ways that we can go about doing this.  The first is to manually update the matrix one entry, row or column at a time.  Like vectors, the individual values of the matrix x are referenced using x[ ].  However, unlike a vector, each value has two identifiers, namely the row and column.  Lets try and change the second row, first column value of our matrix x to the number 1###
+
+x[2,1] = 1
+x
+
+###Notice that the first number inside the [ ] is the row and the second number inside the [ ] is the column.  What if I wanted to do an entire row at a time.  For example, pretend we want to change the first row to 1,2,3,4 .  ###
+
+x[1,]  = c(1,2,3,4)
+x
+
+####Likewise, if I want to make the fourth column -5,2,6,-1,4 I can do the following####
+
+x[,4] = c(-5,2,6,-1,4)
+x
+
+###So far we've changed our matrix by changing the values individually after starting with a matrix where all the values were zero.  what if I wanted to create the same matrix, but I wanted to start with values other than zero in the matrix.###
+
+1:20
+
+matrix(1:20,ncol=4)
+
+matrix(1:20,nrow=5)
+
+matrix(1:20,nrow=5,byrow = T)
+
+####Okay, lets move on.  Lets discuss normal quantile plots. Here, we will look at two variables, one that is normally distributed, another that clearly isn't.  Lets download our student.csv file again and look at the distances students are commuting to campus.  Don't forget to download the csv file and change your directory
+
+setwd("C:/Users/choop/Documents/Workshops/PRIME/R Workshop 20200217")
+student = read.csv("student.csv",h=T)
+attach(student)
+hist(commute,breaks=9)
+
+# Clearly Commute is a variable that is skewed to the right, lets look at what a normal quantile plot looks like for a distribution that is not normal.
+
+qqnorm(commute)
+
+# Now lets create a variable that is normally distributed.  We can do this using the rnorm function.  rnorm takes three arguments, the number of items you want in your dataset, the mean of those items and the standard deviation of those items
+
+norm.data = rnorm(500,10,2)
+
+norm.data
+
+hist(norm.data,breaks=20)
+
+qqnorm(norm.data)
+
+## Finally, FOR loops.  Do loops are one of the cornerstones of statistical programming for repeating algorithms.  A FOR statement is a statement in which you tell the program to repeat a process a certain number of times.  For example let's suppose I want to create the fibonacci sequence for the first 10 numbers in the sequence.  Lets start the sequence off with two 1's####
+
+fib.seq = rep(0,10)
+fib.seq[1] = 1
+fib.seq[2] = 1
+
+fib.seq
+
+for(i in 3:10){
+    fib.seq[i] = fib.seq[i-1] + fib.seq[i-2]
+}
+
+fib.seq
+
+####You can use several FOR loops at once.  For example, lets suppose I want to fill out a matrix to give us pascals triangle.  Now in Pascals triangle, each new entry in a row is the sum of the same entry in the previous row and the previous entry in the previous row, lets start with a blank matrix with all zeroes except for the first row and first column entry, which should be one####
+
+pascal = matrix(0,10,10)
+pascal[,1] = 1
+pascal
+
+###update each row at a time, starting with the second and ending with the 10th, and within each row we want to update all ten entries###
+
+for(i in 2:10){
+    for(j in 2:10){
+        pascal[i,j] = pascal[i-1,j] + pascal[i-1,j-1]
+    }
+}
+pascal
+```
+
+## Functions in R
+```{r}
+## Lets look at functions in R. Building your own functions can be incredibly helpful and time saving if executed effectively. Some examples of basic functions include computing complex summaries, computing running averages, simulating processes and (as will be our final example) rapidly using the binomial equation.
+
+## Here's how the function call works, I'm going to create a basic function that simple computes the variance of a vector
+
+variance.function = function(vector){
+	k.mean = mean(vector)
+	k.variance = sum((vector - mean(vector))^2)/(length(vector) - 1)
+	k.variance
+}
+
+###Notice the syntax.
+#your.functions.name = function(input1,input2,input3...){
+#		stuff 
+#		to 
+#		do
+#		final.output
+#}
+#Lets try out our function
+
+variance.function(c(1,2,3,4,5))
+
+x = c(1,2,3,4,5)
+variance(x)
+
+#What about the variables we used in the function, can we call them after the function?
+
+k.mean
+
+k.variance
+
+###What if we want our function to include more than one variable?  Lets say we want to edit our function so that it now outputs the mean and the variance of our dataset.   Essentially we are going to include several outputs as a single output (either in vector or dataframe form)
+
+variance.function2 = function(vector){
+	k.mean = mean(vector)
+	k.variance = sum((vector - mean(vector))^2)/(length(vector) - 1)
+	final.output = c(k.mean,k.variance)
+	final.output
+}
+
+variance.function2(x)
+
+###or alternatively....
+
+variance.function3 = function(vector){
+	k.mean = mean(vector)
+	k.variance = sum((vector - mean(vector))^2)/(length(vector) - 1)
+	final.output = c()
+	final.output$mean = k.mean
+	final.output$variance = k.variance
+	final.output
+}
+
+variance.function3(x)
+variance.function3(x)$mean
+variance.function3(x)$variance
+
+output3 = variance.function3(x)
+output3$mean
+output3$variance
+
+### Ultimately there are more options for how you want to package your final product from a function and as you grow as an R programmer you will undoubtedly encounter new techniques for packaging results.  Now, lets see the advantage of using functions.
+
+# For practice, lets try and create a function called binomial that takes three input arguments (n,k,p) and outputs the probability that you have k successes out of n trials with probability of a single success equaling p.  (for n choose k you can use the built in R function choose(n,k) or if you'd like to manually do things you can use factorial(x) to do the factorials manually).  Once you've programmed your binomial function, go ahead and use it to find the probability that you flip a coin three times and get 2 heads.
+
+
+#####Hopefully you came up with something like
+
+binomial = function(n,k,p){
+	output = choose(n,k)*(p^k)*((1-p)^(n-k))
+	output
+}
+
+binomial(3,2,.5)
+
+####Lastly, you can call functions within functions or FOR loops within functions.  Lets suppose I wanted to compute something that required the binomial equation several times, I could create a function that uses a for loop to call the binomial function several ti es.  For example, in class we attacked the following question using the C.L.T. "55% of students at CSUF are active, whats the probability that you sample 400 students and more than 50% are active" and we got a final answer of .9772 (although after a discrete variable correction we should have gotten .9744 but nevermind about that).  Alternatively we could have just used the binomial equation 200 times to find the answer.  By hand this would take all year, but could we come up with a savy computer program that inputs the number of trials, the minimum number of successes and the probability of a single event success and then computes the probability you get AT LEAST that many successes.
+
+at.least.k = function(n,k,p){
+	aggregate.probability = 0
+	for(i in k:n){
+		aggregate.probability = aggregate.probability + binomial(n,i,p)
+	}
+	aggregate.probability
+}
+
+at.least.k(400,201,.55)
+```
+
+
+
+## T Test Example
+```{r}
+###Change working directory to wherever you saved t test example data.csv
+setwd("C:/Users/choop/Documents/Workshops/PRIME/R Workshop 20200217")
+data = read.csv("t_test_data.csv",h=T)
+data
+
+###Notice there are some NA's for the Experiment column.
+
+Control = data$Control
+Experiment = na.omit(data$Experiment)
+Control
+Experiment
+
+###First run a hypothesis test to see if mu for control is greater than 18.
+
+###Manually code it:
+
+t = (mean(Control) - 18)/(sd(Control)/sqrt(length(Control)))
+t
+pval = 1 - pt(t,length(Control)-1)
+pval
+
+###Or use the built in function t.test
+?t.test
+t.test(Control,alternative="greater",mu=18)
+
+###Run a hypothesis to see if the control and experiment groups have the same average
+
+###Manually code it:
+
+t = (mean(Control)-mean(Experiment))/sqrt(var(Control)/length(Control) + var(Experiment)/length(Experiment))
+t
+pval = 2*pt(-abs(t),length(Control)+length(Experiment)-2)
+pval
+
+###Or use t.test
+
+t.test(Control,Experiment,alternative="two.sided",mu=0)
+
+```
+
+## Loading Built in Packages or Packages from the internet
+```{r}
+# install.packages("praise")
+library("praise")
+print(praise())
+
+#n = 5000000000
+n = 5
+
+for (i in 1:n) {
+  print(praise())
+}
+
+## Commonly Use Packages
+library(ggplot2)
+library(ggmap)
+library(spatstat)
+library(MASS)
+```
+
+
+## ggplot2
+# This could be a whole lecture in itself. GGplot2 has incredible capabilities of making graphics
+http://r-statistics.co/Complete-Ggplot2-Tutorial-Part1-With-R-Code.html
+https://uc-r.github.io/ggplot_intro
+http://r-statistics.co/ggplot2-Tutorial-With-R.html
+https://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html
+
+
+
+# REAL PROBLEM
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Set Directory, Load Data, Load Packages
+```{r}
+# Set Working Directory
+setwd("C:/Users/choop/Documents/Workshops/PRIME/R Workshop 20200217")
+# Load Directory
+library(ggplot2)
+library(ggmap)
+# Load Data
+data = read.csv("advertising_data.csv",h=T)
+```
+
+# Basic EDA
+```{r}
+# Plot
+ggplot(data,aes(x = Spend, y = Revenue, color = Revenue)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, col = 1) +
+  labs(title = "Advertising Return for Start-Up Companies",
+       colour = "Amount ($)",
+       x = "Spend ($)",
+       y = "Revenue ($)") +
+  theme(legend.text = element_text(size = 13),
+        legend.position="right",
+        axis.text=element_text(size=10),
+        axis.title=element_text(size=13),
+        title=element_text(size=16),
+        plot.title = element_text(hjust = 0.5))
+# Linear Model of Data
+model = lm(data$Revenue~data$Spend)
+summary(model)
+# Plot of Linear Model Results
+par(mfrow=c(2,2))
+plot(model)
+```
+
+From our EDA, we notice that we have a point with high leverage and high residual, as seen in Cook's Distance plot. When inspecting the point (indexed 257), we notice that even though they spent $1,255,897.00 on advertising, they made $0.00 for revenue. This is a point with high leverage and high residual. To counteract the effect this single data point has on our linear model, we remove this point from the data set and redo our EDA.
+
+# Basic EDA Revisted
+```{r}
+# Remove Data Point
+data.modified <- data[-c(257),]
+# Plot Data
+ggplot(data.modified,aes(x = Spend, y = Revenue, color = Revenue)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, col = 1) +
+  labs(title = "Advertising Return for Start-Up Companies",
+       colour = "Amount ($)",
+       x = "Spend ($)",
+       y = "Revenue ($)") +
+  theme(legend.text = element_text(size = 13),
+        legend.position="right",
+        axis.text=element_text(size=10),
+        axis.title=element_text(size=13),
+        title=element_text(size=16),
+        plot.title = element_text(hjust = 0.5))
+# Separate Data for Linear Model
+Revenue = data.modified$Revenue
+Spend = data.modified$Spend
+# Linear Model of Data -> Used for Prediction and Confidence Interval
+model.modified = lm(Revenue~Spend)
+summary(model.modified)
+# Plot of Linear Model Results
+par(mfrow=c(2,2))
+plot(model.modified)
+```
+
+# Basic EDA Revisted with Confidence / Prediction Intervals
+```{r}
+# Compute Confidence and Prediction Intervals
+input = data.frame(Spend=Spend)
+conf = predict(model.modified,newdata=input,interval="confidence")
+pred = predict(model.modified,newdata=input,interval="predict")
+# Add Confidence and Prediction Intervals to Data Frame
+data.modified.intervals = cbind(data.modified,conf,pred[,c(2,3)])
+colnames(data.modified.intervals) = c("Spend","Revenue","ModelFit","CILB","CIUB","PILB","PIUB")
+# Plot
+ggplot(data.modified.intervals,aes(x = Spend, y = Revenue, color = Revenue)) +
+  geom_point() +
+  geom_smooth(method = "lm", se =TRUE, col = 3,lwd = 1.5) + 
+  geom_line(aes(y = PILB), color = "red",linetype = "dashed",lwd = 1.5) + 
+  geom_line(aes(y = PIUB), color = "red",linetype = "dashed",lwd = 1.5) + 
+labs(title = "Advertising Return for Start-Up Companies",
+       colour = "Amount ($)",
+       x = "Spend ($)",
+       y = "Revenue ($)") +
+  theme(legend.text = element_text(size = 13),
+        legend.position="right",
+        axis.text=element_text(size=10),
+        axis.title=element_text(size=13),
+        title=element_text(size=16),
+        plot.title = element_text(hjust = 0.5))
+```
+
+# Confidence and Prediction Interval 
+```{r}
+model.modified.summary = summary(model.modified)
+slopeUB = model.modified.summary$coefficients[2,1]+1.96*model.modified.summary$coefficients[2,2]
+slopeLB = model.modified.summary$coefficients[2,1]-1.96*model.modified.summary$coefficients[2,2]
+c(slopeLB, model.modified.summary$coefficients[2,1], slopeUB)
+
+x.seq = seq(100000,1000000,by=1000)
+input = data.frame(Spend=x.seq)
+conf.interval = predict(model.modified,newdata=input,interval="confidence")
+pred.interval = predict(model.modified,newdata=input,interval="predict")
+
+conf.interval.500k = conf.interval[x.seq == 500000]
+pred.interval.500k = pred.interval[x.seq == 500000]
+conf.interval.500k
+pred.interval.500k
+conf.interval.700k = conf.interval[x.seq == 700000]
+pred.interval.700k = pred.interval[x.seq == 700000]
+conf.interval.700k
+pred.interval.700k
+```
+
+
+From our revisted EDA, we can see our data follows a normal distribution and has constant variance. From our sampling decision, our data is assumed to be independent. Finally, we can see we chose the correct model (linear) for our data. Thus, we can start making predictions.
+
+Non GG Plot way for Prediction / Confidence Interval
+```{r}
+# Plot
+ggplot(data.modified,aes(x = Spend, y = Revenue, color = Revenue)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, col = 1) +
+  labs(title = "Advertising Return for Start-Up Companies",
+       colour = "Amount ($)",
+       x = "Spend ($)",
+       y = "Revenue ($)") +
+  theme(legend.text = element_text(size = 13),
+        legend.position="right",
+        axis.text=element_text(size=10),
+        axis.title=element_text(size=13),
+        title=element_text(size=16),
+        plot.title = element_text(hjust = 0.5))
+
+# Prediction Interval
+x.seq = seq(100000,1000000,by=1000)
+input = data.frame(Spend=x.seq)
+conf = predict(model.modified,newdata=input,interval="confidence")
+pred = predict(model.modified,newdata=input,interval="predict")
+dev.off()
+plot(Spend,Revenue)
+abline(model.modified,lwd=3)
+lines(x.seq,conf[,2],lwd=3,col=2)
+lines(x.seq,conf[,3],lwd=3,col=2)
+lines(x.seq,pred[,2],lwd=3,col=4)
+lines(x.seq,pred[,3],lwd=3,col=4)
+```
+
+GG Plot way for Prediction / Confidence Interval with no builtin functions
+```{r}
+intervals = data.frame(Spend = x.seq,conf,pred[,c(2,3)])
+colnames(intervals)
+colnames(intervals) = c("money","fit","lowerConf","upperConf","lowPred","upperPred")
+colnames(intervals)
+ggplot(data.modified,aes(x = Spend, y = Revenue, color = Revenue)) +
+  geom_point() +
+  geom_line(data=intervals, aes(x=money, y=fit), color = "green",linetype = "solid",lwd = 1.5) +
+  geom_line(data=intervals, aes(x=money, y=lowerConf), color = "blue",linetype = "solid",lwd = 1.5) +
+  geom_line(data=intervals, aes(x=money, y=upperConf), color = "blue",linetype = "solid",lwd = 1.5) +
+  geom_line(data=intervals, aes(x=money, y=lowPred), color = "red",linetype = "dashed",lwd = 1.5) +
+  geom_line(data=intervals, aes(x=money, y=upperPred), color = "red",linetype = "dashed",lwd = 1.5) +
+  xlim(300000,1000000) +
+  labs(title = "Advertising Return for Start-Up Companies",
+       subtitle = "by Cameron G. (Gangster) Hooper",
+       colour = "Amount ($)",
+       x = "Spend ($)",
+       y = "Revenue ($)") +
+  theme(legend.text = element_text(size = 13),
+        legend.position="right",
+        axis.text=element_text(size=10),
+        axis.title=element_text(size=13),
+        title=element_text(size=16),
+        plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
+```
+
+
+## THAT ENDS THIS R TUTORIAL
+# IF ANY QUESTIONS, google, stackexchange, blog.rstudio, r.documentation, reddit, youtube, etc. will be your best friend. Learn to use the internet to figure out the solution to your coding problem. Also, make sure to take breaks and walk away. Coding is not a linear process, it comes and goes like the tide of the ocean.
